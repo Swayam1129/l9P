@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <cassert>cmake --build build && cd build && ./main
+#include <cassert>
 #include "vector_util.h"
 #include <SFML/System.hpp>
 class Camera {
