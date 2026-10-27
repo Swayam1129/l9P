@@ -138,7 +138,30 @@ int main() {
         //
         // Use SOFT_LIMIT_PERCENT and HARD_LIMIT_PERCENT to parameterize the green and red
         // line positions.
-        camera.setCameraCenter({player.position.x, WINDOW_HEIGHT * 0.5f});
+        // camera.setCameraCenter({player.position.x, WINDOW_HEIGHT * 0.5f});
+
+        // Where the player appears on screen, as a fraction of the window (0 = left, 1 = right)
+        float px = camera.worldToWindowPercent(player.position).x;
+
+        const float leftHard  = HARD_LIMIT_PERCENT;         // red line, 1/5
+        const float rightHard = 1.f - HARD_LIMIT_PERCENT;   // red line, 4/5
+        const float leftSoft  = SOFT_LIMIT_PERCENT;         // green line, 1/3
+        const float rightSoft = 1.f - SOFT_LIMIT_PERCENT;   // green line, 2/3
+
+        if (px > rightHard) {
+            // hard zone (right): snap so the player sits exactly on the red line
+            camera.translateWindowPercent({px - rightHard, 0.f});
+        } else if (px < leftHard) {
+            // hard zone (left)
+            camera.translateWindowPercent({px - leftHard, 0.f});
+        } else if (px > rightSoft) {
+            // soft zone (right): close a fraction (alpha) of the gap each frame -> EMA
+            camera.translateWindowPercent({SOFT_CAMERA_ALPHA * (px - rightSoft), 0.f});
+        } else if (px < leftSoft) {
+            // soft zone (left)
+            camera.translateWindowPercent({SOFT_CAMERA_ALPHA * (px - leftSoft), 0.f});
+        }
+        // else: dead zone -> camera doesn't move
 
         worldView.setCenter(camera.getCameraCenter());
         window.clear(sf::Color::Black);
